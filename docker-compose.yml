@@ -1,0 +1,37 @@
+version: "3"
+
+services:
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: orion
+      MYSQL_DATABASE: orion
+
+  server:
+    build:
+      context: .
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PORT: 3306
+      DATABASE_NAME: orion
+      DATABASE_USER: root
+      DATABASE_PASSWORD: orion
+    depends_on:
+      - db
+
+  web:
+    image: rdfriedl/orion-web
+    environment:
+      MAPBOX_API_TOKEN: xxxxxxxxxxxxxxxxxxxxxxxxxxx
+    depends_on:
+      - server
+
+  http:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8080:80"
+    depends_on:
+      - web
